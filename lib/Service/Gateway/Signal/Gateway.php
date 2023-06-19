@@ -27,10 +27,10 @@ namespace OCA\TwoFactorGateway\Service\Gateway\Signal;
 use OCA\TwoFactorGateway\Exception\SmsTransmissionException;
 use OCA\TwoFactorGateway\Service\Gateway\IGateway;
 use OCA\TwoFactorGateway\Service\Gateway\IGatewayConfig;
+use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Http\Client\IClientService;
 use OCP\ILogger;
 use OCP\IUser;
-use OCP\AppFramework\Utility\ITimeFactory;
 
 /**
  * An integration of https://gitlab.com/morph027/signal-web-gateway
