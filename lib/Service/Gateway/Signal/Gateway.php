@@ -82,7 +82,15 @@ class Gateway implements IGateway {
 				],
 			]);
 		if ($response->getStatusCode() === 200 || $response->getStatusCode() === 201) {
-			// native signal-cli JSON RPC. The 201 "created" is probably a bug.
+			// native signal-cli JSON RPC.
+			$params = [
+				'recipient' => $identifier,
+				'message' => $message,
+			];
+			$account = $this->config->getAccount();
+			if ($account != GatewayConfig::ACCOUNT_UNNECESSARY) {
+				$params['account'] = $this->config->getAccount();
+			}
 			$response = $response = $client->post(
 				$this->config->getUrl() . '/api/v1/rpc',
 				[
@@ -90,16 +98,13 @@ class Gateway implements IGateway {
 						'jsonrpc' => '2.0',
 						'method' => 'send',
 						'id' => 'code_' . $this->timeFactory->getTime(),
-						'params' => [
-							'recipient' => $identifier,
-							'message' => $message,
-							'account' => $this->config->getAccount(),
-						],
+						'params' => $params,
 					],
 				]);
 			$body = $response->getBody();
 			$json = json_decode($body, true);
 			$statusCode = $response->getStatusCode();
+			// The 201 "created" is probably a bug.
 			if ($statusCode < 200 || $statusCode >= 300 || is_null($json) || !is_array($json) || ($json['jsonrpc'] ?? null) != '2.0' || !isset($json['result']['timestamp'])) {
 				throw new SmsTransmissionException("error reported by Signal gateway, status=$statusCode, body=$body}");
 			}
@@ -119,6 +124,14 @@ class Gateway implements IGateway {
 				$json = json_decode($body, true);
 				$versions = $json['versions'] || [];
 				if (is_array($versions) && in_array('v2', $versions)) {
+					$json = [
+						'recipients' => $identifier,
+						'message' => $message,
+					];
+					$account = $this->config->getAccount();
+					if ($account != GatewayConfig::ACCOUNT_UNNECESSARY) {
+						$json['account'] = $this->config->getAccount();
+					}
 					$response = $client->post(
 						$this->config->getUrl() . '/v2/send',
 						[

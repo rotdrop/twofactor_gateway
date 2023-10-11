@@ -120,9 +120,14 @@ class Configure extends Command {
 		$config->setUrl($url);
 
 		$helper = $this->getHelper('question');
-		$accountQuestion = new Question('Please enter the account (phone-number) of the sending signal user: ', null);
+		$accountQuestion = new Question('Please enter the account (phone-number) of the sending signal user (leave blank if a phone-number is not required): ', null);
 		$account = $helper->ask($input, $output, $accountQuestion);
-		$output->writeln("Using $account.");
+		if ($account == '') {
+			$account = SignalConfig::ACCOUNT_UNNECESSARY;
+			$output->writeln("A signal account is not needed, assuming it is hardcoded into the signal gateway server.");
+		} else {
+			$output->writeln("Using $account.");
+		}
 		$config->setAccount($account);
 	}
 
