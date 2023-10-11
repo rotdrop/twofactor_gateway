@@ -27,6 +27,7 @@ use OCA\TwoFactorGateway\Service\Gateway\Signal\Gateway as SignalGateway;
 use OCA\TwoFactorGateway\Service\Gateway\SMS\Gateway as SMSGateway;
 use OCA\TwoFactorGateway\Service\Gateway\Telegram\Gateway as TelegramGateway;
 use OCA\TwoFactorGateway\Service\Gateway\XMPP\Gateway as XMPPGateway;
+use OCA\TwoFactorGateway\Exception\ConfigurationException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -57,8 +58,21 @@ class Status extends Command {
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output) {
+		$verbosity = $output->getVerbosity();
 		$signalConfigured = $this->signalGateway->getConfig()->isComplete();
 		$output->writeln('Signal gateway: ' . ($signalConfigured ? 'configured' : 'not configured'));
+		if ($verbosity >= OutputInterface::VERBOSITY_VERBOSE) {
+			try {
+				$output->writeln('  Signal url: ' . $this->signalGateway->getConfig()->getUrl());
+			} catch (ConfigurationException $e) {
+				$output->writeln('  Signal url: ' . 'not configured');
+			}
+			try {
+				$output->writeln('  Signal account: ' . $this->signalGateway->getConfig()->getAccount());
+			} catch (ConfigurationException $e) {
+				$output->writeln('  Signal account: ' . 'not configured');
+			}
+		}
 		$smsConfigured = $this->smsGateway->getConfig()->isComplete();
 		$output->writeln('SMS gateway: ' . ($smsConfigured ? 'configured' : 'not configured'));
 		$telegramConfigured = $this->telegramGateway->getConfig()->isComplete();
