@@ -83,14 +83,15 @@ class Gateway implements IGateway {
 			]);
 		if ($response->getStatusCode() === 200 || $response->getStatusCode() === 201) {
 			// native signal-cli JSON RPC.
+
+			// Groups have to be detected and passed with the "group-id" parameter. We assume a group is given as base64 encoded string
+			$isGroup = base64_decode($identifier) !== false;
+			$recipientKey = $isGroup ? 'group-id' : 'recipient';
 			$params = [
-				'recipient' => $identifier,
 				'message' => $message,
+				$recipientKey => $identifier,
+				'account' => $this->config->getAccount(), // mandatory for native RPC API
 			];
-			$account = $this->config->getAccount();
-			if ($account != GatewayConfig::ACCOUNT_UNNECESSARY) {
-				$params['account'] = $this->config->getAccount();
-			}
 			$response = $response = $client->post(
 				$this->config->getUrl() . '/api/v1/rpc',
 				[
