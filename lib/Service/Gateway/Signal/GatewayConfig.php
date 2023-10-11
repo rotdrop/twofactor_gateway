@@ -33,6 +33,7 @@ class GatewayConfig implements IGatewayConfig {
 		'signal_url',
 		'signal_account',
 	];
+	public const ACCOUNT_UNNECESSARY = 'unneccessary';
 
 	/** @var IConfig */
 	private $config;
