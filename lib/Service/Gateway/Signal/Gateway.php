@@ -85,7 +85,8 @@ class Gateway implements IGateway {
 			// native signal-cli JSON RPC.
 
 			// Groups have to be detected and passed with the "group-id" parameter. We assume a group is given as base64 encoded string
-			$isGroup = base64_decode($identifier) !== false;
+			$groupId = base64_decode($identifier, strict: true);
+			$isGroup = $groupId !== false && base64_encode($groupId) === $identifier;
 			$recipientKey = $isGroup ? 'group-id' : 'recipient';
 			$params = [
 				'message' => $message,
